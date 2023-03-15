@@ -13,7 +13,7 @@ const addBookHandler = (req, h) => {
     reading,
   } = req.payload;
 
-  if (name === null || name === undefined) {
+  if (name === undefined || name === null) {
     const response = h.response({
       status: 'fail',
       message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -50,6 +50,8 @@ const addBookHandler = (req, h) => {
     updatedAt,
   };
 
+  bookshelf.push(newBook);
+
   const isSuccess = bookshelf.filter((book) => book.id === id).length > 0;
   if (isSuccess) {
     const response = h.response({
@@ -65,9 +67,9 @@ const addBookHandler = (req, h) => {
 
   const response = h.response({
     status: 'fail',
-    message: 'Gagal menambahkan buku. Mohon isi nama buku',
+    message: 'Gagal menambahkan buku.',
   });
-  response.code(400);
+  response.code(500);
   return response;
 };
 
@@ -142,7 +144,7 @@ const getBookByIdHandler = (req, h) => {
 };
 
 const editBookByIdHandler = (req, h) => {
-  const { id } = req.param;
+  const { id } = req.params;
 
   const {
     name,
@@ -189,6 +191,8 @@ const editBookByIdHandler = (req, h) => {
       status: 'success',
       message: 'Buku berhasil diperbarui',
     });
+    response.code(200);
+    return response;
   }
   const response = h.response({
     status: 'fail',
