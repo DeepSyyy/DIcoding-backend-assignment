@@ -16,7 +16,7 @@ const addBookHandler = (req, h) => {
   if (name === null || name === undefined) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+      message: 'Gagal menambahkan buku. Mohon isi nama buku',
     });
     response.code(400);
     return response;
@@ -24,7 +24,7 @@ const addBookHandler = (req, h) => {
   if (readPage > pageCount) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
     });
     response.code(400);
     return response;
@@ -71,12 +71,51 @@ const addBookHandler = (req, h) => {
   return response;
 };
 
-const getAllHandler = () => ({
-  status: 'success',
-  data: {
-    bookshelf,
-  },
-});
+const getAllHandler = (req, h) => {
+  const { name, reading, finished } = req.query;
+
+  let filterBooks = [];
+
+  if (name) {
+    filterBooks = bookshelf
+      .filter((book) => book.name.toLowerCase().includes(name.toLowerCase()))
+      .map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      }));
+  } else if (reading) {
+    filterBooks = bookshelf
+      .filter((book) => book.reading === (reading === '1'))
+      .map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      }));
+  } else if (finished) {
+    filterBooks = bookshelf
+      .filter((book) => book.finished === (finished === '1'))
+      .map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      }));
+  } else {
+    filterBooks = bookshelf.map((book) => ({
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    }));
+  }
+  const response = h.response({
+    status: 'success',
+    data: {
+      books: filterBooks,
+    },
+  });
+  response.code(200);
+  return response;
+};
 
 const getBookByIdHandler = (req, h) => {
   const { id } = req.params;
